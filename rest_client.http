@@ -1,0 +1,25 @@
+
+
+GET http://localhost:8080/greet 
+
+###
+GET http://localhost:8080/customers 
+content-type: application/json
+
+###
+GET http://localhost:8080/customers/2
+content-type: application/json
+
+###
+POST  http://localhost:8080/customers
+content-type: application/json
+
+{
+    "name": "sample",
+    "time": "Wed, 21 Oct 2015 18:27:50 GMT"
+}
+
+
+### XML REQUESTS
+GET http://localhost:8080/customers 
+content-type: application/xml
