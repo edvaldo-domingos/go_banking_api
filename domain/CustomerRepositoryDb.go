@@ -42,6 +42,21 @@ func (d CustomerRepositoryDb) FindAll() ([]Customer, error){
 	return customers, nil
 }
 
+
+func (d CustomerRepositoryDb) ById(id string) (*Customer, error){
+	customerSql := "select customer_id, name, city, zipcode, date_of_birth, status from customers where customer_id =  ?"
+	row := d.client.QueryRow(customerSql, id);
+	var c Customer
+	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateofBirth, &c.Status)
+	if err != nil {
+		log.Println("Error while Scanning customer" + err.Error())
+		return nil, err
+	}
+
+	return &c, nil
+
+}
+
 func NewCustomerRepositoryDb() CustomerRepositoryDb{
 	client, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/banking")
 	if err != nil {

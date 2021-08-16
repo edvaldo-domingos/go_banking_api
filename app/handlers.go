@@ -3,9 +3,11 @@ package app
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"net/http"
 
 	"github.com/edvaldo-domingos/go_banking/service"
+	"github.com/gorilla/mux"
 )
 
 type Customer struct{
@@ -35,6 +37,22 @@ func (ch *CustomerHandler) getAllCustomers(rw http.ResponseWriter, r *http.Reque
 
 		rw.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(rw).Encode(customers)
+	}
+
+}
+
+func (ch *CustomerHandler) getCustomer(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["customer_id"]
+
+	customer, err := ch.service.GetCustomer(id)
+
+	if err != nil{
+		rw.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(rw, err.Error())
+	}else{
+		rw.Header().Add("Content-Type", "application.json")
+		json.NewEncoder(rw).Encode(customer)
 	}
 
 }
