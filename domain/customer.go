@@ -1,9 +1,6 @@
 package domain
 
 import "github.com/ashishjuyal/banking-lib/errs"
-
-
-
 type Customer struct{
 	Id string
 	Name string
