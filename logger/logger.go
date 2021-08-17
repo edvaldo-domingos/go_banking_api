@@ -37,3 +37,4 @@ func Debug(message string, fields ...zap.Field){
 func Error(message string, fields ...zap.Field){
 	log.Info(message, fields...)
 }
+
