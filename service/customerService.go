@@ -3,11 +3,12 @@ package service
 import (
 	"github.com/ashishjuyal/banking-lib/errs"
 	"github.com/edvaldo-domingos/go_banking/domain"
+	"github.com/edvaldo-domingos/go_banking/dto"
 )
 
 type CustomerService interface{
 	GetAllCustomers(status string) ([]domain.Customer, *errs.AppError)
-	GetCustomer(string) (*domain.Customer, *errs.AppError)
+	GetCustomer(string) (*dto.CustomerResponse, *errs.AppError)
 }
 
 
@@ -27,8 +28,15 @@ func (s DefaultCustomerService) GetAllCustomers(status string) ([]domain.Custome
 	return s.repo.FindAll(status)
 }
 
-func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, *errs.AppError){
-	return s.repo.ById(id)
+func (s DefaultCustomerService) GetCustomer(id string) (*dto.CustomerResponse, *errs.AppError){
+	c, err := s.repo.ById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	response  := c.ToDto()
+	
+	return &response, nil
 }
 
 // business logic
