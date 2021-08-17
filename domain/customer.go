@@ -2,11 +2,12 @@ package domain
 
 import "github.com/ashishjuyal/banking-lib/errs"
 type Customer struct{
-	Id string
+	// maps the name of the struct with the customer props
+	Id string `db:"customer_id"`
 	Name string
 	City string
 	Zipcode string
-	DateofBirth string
+	DateofBirth string `db:"date_of_birth"`
 	Status string
 }
 
