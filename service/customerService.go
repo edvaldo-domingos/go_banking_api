@@ -5,41 +5,43 @@ import (
 	"github.com/edvaldo-domingos/go_banking/domain"
 	"github.com/edvaldo-domingos/go_banking/dto"
 )
-
-type CustomerService interface{
-	GetAllCustomers(status string) ([]domain.Customer, *errs.AppError)
+type CustomerService interface {
+	GetAllCustomer(string) ([]dto.CustomerResponse, *errs.AppError)
 	GetCustomer(string) (*dto.CustomerResponse, *errs.AppError)
 }
-
 
 type DefaultCustomerService struct {
 	repo domain.CustomerRepository
 }
 
-// receiver function
-func (s DefaultCustomerService) GetAllCustomers(status string) ([]domain.Customer, *errs.AppError){
-	if status == "active"{
-		status ="1"
-	}else if status == "inactive"{
+func (s DefaultCustomerService) GetAllCustomer(status string) ([]dto.CustomerResponse, *errs.AppError) {
+	if status == "active" {
+		status = "1"
+	} else if status == "inactive" {
 		status = "0"
-	}	else{
+	} else {
 		status = ""
 	}
-	return s.repo.FindAll(status)
+	customers, err := s.repo.FindAll(status)
+	if err != nil {
+		return nil, err
+	}
+	response := make([]dto.CustomerResponse, 0)
+	for _, c := range customers {
+		response = append(response, c.ToDto())
+	}
+	return response, err
 }
 
-func (s DefaultCustomerService) GetCustomer(id string) (*dto.CustomerResponse, *errs.AppError){
+func (s DefaultCustomerService) GetCustomer(id string) (*dto.CustomerResponse, *errs.AppError) {
 	c, err := s.repo.ById(id)
 	if err != nil {
 		return nil, err
 	}
-
-	response  := c.ToDto()
-	
+	response := c.ToDto()
 	return &response, nil
 }
 
-// business logic
-func NewCustomerService(repository domain.CustomerRepository) DefaultCustomerService{
+func NewCustomerService(repository domain.CustomerRepository) DefaultCustomerService {
 	return DefaultCustomerService{repository}
 }

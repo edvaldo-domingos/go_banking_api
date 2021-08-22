@@ -36,33 +36,43 @@ func sanityCheck() {
 }
 
 func Start(){
-	// load .env file
-	err := godotenv.Load(".env")
+	godotenv.Load()
+	sanityCheck()
 
-	if err != nil {
-	  log.Fatalf("Error loading .env file")
-	}
 	router := mux.NewRouter()
 
 	//wiring
 	dbClient := getDbClient()
 	customerRepositoryDb := domain.NewCustomerRepositoryDb(dbClient)
-	// accountRepositoryDb := domain.NewAccountRepositoryDb(dbClient)
-
-	ch := CustomerHandler{service.NewCustomerService(customerRepositoryDb)}
-	// ah := AccountHandler{service.NewAccountService(accountRepositoryDb)}
-
+	accountRepositoryDb := domain.NewAccountRepositoryDb(dbClient)
+	ch := CustomerHandlers{service.NewCustomerService(customerRepositoryDb)}
+	ah := AccountHandler{service.NewAccountService(accountRepositoryDb)}
 	
-	// defining routes
-	router.HandleFunc("/customers", ch.getAllCustomers).Methods(http.MethodGet)
-	router.HandleFunc("/customers/{customer_id:[0-9]+}", ch.getCustomer).Methods(http.MethodGet)
-
+	// define routes
+	router.
+		HandleFunc("/customers", ch.getAllCustomers).
+		Methods(http.MethodGet).
+		Name("GetAllCustomers")
+	router.
+		HandleFunc("/customers/{customer_id:[0-9]+}", ch.getCustomer).
+		Methods(http.MethodGet).
+		Name("GetCustomer")
+	router.
+		HandleFunc("/customers/{customer_id:[0-9]+}/account", ah.NewAccount).
+		Methods(http.MethodPost).
+		Name("NewAccount")
+	router.
+		HandleFunc("/customers/{customer_id:[0-9]+}/account/{account_id:[0-9]+}", ah.MakeTransaction).
+		Methods(http.MethodPost).
+		Name("NewTransaction")
+	
+		am := AuthMiddleware{domain.NewAuthRepository()}
+	router.Use(am.authorizationHandler())
 	// starting server
 	address := os.Getenv("SERVER_ADDRESS")
 	port := os.Getenv("SERVER_PORT")
 	logger.Info(fmt.Sprintf("Starting server on %s:%s ...", address, port))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", address, port), router))
-
 }
 
 
